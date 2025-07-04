@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markov Chain Text Generation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Markov Chain Text Generation</h1>
+<textarea id="input-text" placeholder="Enter your text here..."></textarea>
+<button id="generate-btn">Generate Text</button>
+<div class="output" id="output-text"></div>
+
+<script>
+    class MarkovChain {
+        constructor() {
+            this.chain = {};
+        }
+
+        // Build the Markov chain from the input text
+        build(text) {
+            const words = text.split(/\s+/);
+            for (let i = 0; i < words.length - 1; i++) {
+                const word = words[i];
+                const nextWord = words[i + 1];
+
+                if (!this.chain[word]) {
+                    this.chain[word] = [];
+                }
+                this.chain[word].push(nextWord);
+            }
+        }
+
+        // Generate text based on the Markov chain
+        generate(startWord, length = 50) {
+            let currentWord = startWord;
+            let result = [currentWord];
+
+            for (let i = 0; i < length - 1; i++) {
+                const nextWords = this.chain[currentWord];
+                if (!nextWords) break; // No next words available
+
+                // Randomly select the next word
+                currentWord = nextWords[Math.floor(Math.random() * nextWords.length)];
+                result.push(currentWord);
+            }
+
+            return result.join(' ');
+        }
+    }
+
+    document.getElementById('generate-btn').addEventListener('click', () => {
+        const inputText = document.getElementById('input-text').value;
+        const outputDiv = document.getElementById('output-text');
+
+        if (!inputText) {
+            outputDiv.textContent = 'Please enter some text to generate from.';
+            return;
+        }
+
+        const markov = new MarkovChain();
+        markov.build(inputText);
+
+        // Start generating from a random word in the input text
+        const words = inputText.split(/\s+/);
+        const startWord = words[Math.floor(Math.random() * words.length)];
+        const generatedText = markov.generate(startWord, 50); // Generate 50 words
+
+        outputDiv.textContent = generatedText;
+    });
+</script>
+
+</body>
+</html>
